@@ -2,11 +2,11 @@
 
 import pprint
 
+#############
+## Globals ##
+#############
+
 pp = pprint.PrettyPrinter(indent=4, compact=False, width=80)
-
-##pp.pprint(dict)
-
-## Globals
 
 MONDAY_MASK=0x01
 TUESDAY_MASK=0x02
@@ -35,44 +35,27 @@ calendarDB = {
     'currentWeekFridayPerson': None
 }
 
-# Internal functions
+########################
+## Internal functions ##
+########################
 
 def assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, settings):
     assignedPerson = None
 
-#    if dayOfWeekMask & MONDAY_MASK:
-#        print("- We are on Monday !")
-
-#    if dayOfWeekMask & TUESDAY_MASK:
-#        print("- We are on Tuesday !")
-
-#     if dayOfWeekMask & WEDNESDAY_MASK:
-#         print("- We are on Wednesday !")
-
-#     if dayOfWeekMask & THURSDAY_MASK:
-#         print("- We are on Thursday !")
-
-#     if dayOfWeekMask & FRIDAY_MASK:
-#         print("- We are on Friday !")
-
-#     if dayOfWeekMask & SATURDAY_MASK:
-#         print("- We are on Saturday !")
-
-#     if dayOfWeekMask & SUNDAY_MASK:
-#         print("- We are on Sunday !")
+    if dayOfWeekMask & MONDAY_MASK:
+        for person in peopleDB.keys():
+            peopleDB[person]['supportDaysThisWeek'] = 0
 
     if dayOfWeekMask & NORMALDAY_MASK:
-        # print("=> We are on a Normal day !")
-
         for person in peopleDB.keys():
             if (
-                assignedPerson == None or peopleDB[person]['supportDaysThisWeek'] < peopleDB[assignedPerson]['supportDaysThisWeek']
+                assignedPerson == None 
+                or (dayOfWeekMask & FRIDAY_MASK and peopleDB[person]['bigWeekEndDays'] > peopleDB[assignedPerson]['bigWeekEndDays'])
+                or peopleDB[person]['supportDaysThisWeek'] < peopleDB[assignedPerson]['supportDaysThisWeek']
                 or peopleDB[person]['supportDaysPeriod'] < peopleDB[assignedPerson]['supportDaysPeriod']
             ):
                 assignedPerson = person
     else:
-        # print("=> We are on a Big Week End day !")
-
         if calendarDB['currentBigWeekEndPerson'] != None :
             assignedPerson = calendarDB['currentBigWeekEndPerson']
         else:
@@ -83,9 +66,8 @@ def assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, settings):
                     or peopleDB[person]['supportDaysPeriod'] < peopleDB[assignedPerson]['supportDaysPeriod'])
                 ):
                     assignedPerson = person
-            
             peopleDB[assignedPerson]['bigWeekEndPeriod'] += 1
-        
+        peopleDB[assignedPerson]['bigWeekEndDays'] += 1
         calendarDB['currentBigWeekEndPerson'] = assignedPerson
 
     peopleDB[assignedPerson]['supportDaysThisWeek'] += 1
@@ -102,24 +84,22 @@ def assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, settings):
 
     if dayOfWeekMask & SATURDAY_MASK:
         peopleDB[assignedPerson]['bigWeekEndPeriod'] += 1
-#    if dayOfWeekMask & BIGWEEKEND_MASK:
-        
-    
-    
 
-## MAIN
+##########
+## MAIN ##
+##########
 
 for person in peopleDB.keys():
     if ('supportDaysThisWeek' not in peopleDB[person]):
         peopleDB[person]['supportDaysThisWeek'] = 0
     if ('supportDaysPeriod' not in peopleDB[person]):
         peopleDB[person]['supportDaysPeriod'] = 0
-#    if ('currentBigWeekEnd' not in peopleDB[person]):
-#        peopleDB[person]['currentBigWeekEnd'] = False
+    if ('bigWeekEndDays' not in peopleDB[person]):
+        peopleDB[person]['bigWeekEndDays'] = 0
     if ('bigWeekEndPeriod' not in peopleDB[person]):
         peopleDB[person]['bigWeekEndPeriod'] = 0
 
-for week in range(6):
+for week in range(48):
             
     print("<====== We are start Week n°%d ======>" % week)
     
@@ -129,7 +109,7 @@ for week in range(6):
         
         assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, {})
 
-        # pp.pprint(peopleDB)
+        pp.pprint(peopleDB)
         # pp.pprint(calendarDB)
     
     for person in peopleDB.keys():
