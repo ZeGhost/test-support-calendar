@@ -50,7 +50,8 @@ def assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, settings):
         for person in peopleDB.keys():
             if (
                 assignedPerson == None 
-                or (dayOfWeekMask & FRIDAY_MASK and peopleDB[person]['bigWeekEndDays'] > peopleDB[assignedPerson]['bigWeekEndDays'])
+                or (dayOfWeekMask & FRIDAY_MASK and (peopleDB[person]['bigWeekEndDays'] > peopleDB[assignedPerson]['bigWeekEndDays']
+                or peopleDB[person]['bigWeekEndPeriod'] > peopleDB[assignedPerson]['bigWeekEndPeriod']))
                 or peopleDB[person]['supportDaysThisWeek'] < peopleDB[assignedPerson]['supportDaysThisWeek']
                 or peopleDB[person]['supportDaysPeriod'] < peopleDB[assignedPerson]['supportDaysPeriod']
             ):
@@ -63,6 +64,7 @@ def assign_people_to_support_day(dayOfWeekMask, calendarDB, peopleDB, settings):
                 if (
                     person != calendarDB['currentWeekFridayPerson'] and 
                     (assignedPerson == None or peopleDB[person]['bigWeekEndPeriod'] < peopleDB[assignedPerson]['bigWeekEndPeriod']
+                    or peopleDB[person]['bigWeekEndDays'] < peopleDB[assignedPerson]['bigWeekEndDays']
                     or peopleDB[person]['supportDaysPeriod'] < peopleDB[assignedPerson]['supportDaysPeriod'])
                 ):
                     assignedPerson = person
@@ -99,7 +101,7 @@ for person in peopleDB.keys():
     if ('bigWeekEndPeriod' not in peopleDB[person]):
         peopleDB[person]['bigWeekEndPeriod'] = 0
 
-for week in range(48):
+for week in range(52):
             
     print("<====== We are start Week n°%d ======>" % week)
     
