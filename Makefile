@@ -1,4 +1,6 @@
-
+decrypt:
+	blackbox_decrypt_all_files
+.PHONY: decrypt
 
 
 docker-build: docker-clean
