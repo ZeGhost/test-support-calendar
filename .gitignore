@@ -3,3 +3,4 @@ credentials.json
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
 /credentials.json
+token.pickle
